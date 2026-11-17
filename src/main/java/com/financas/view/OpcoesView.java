@@ -68,8 +68,14 @@ public class OpcoesView {
     }
 
     public void listarTransacoesView() {
+        System.out.println("--- LISTAR TRANSAÇÕES ---");
         List<Transacao> listaTransacao = service.listarTransacoes();
         listaTransacao.forEach(System.out::println);
+    }
+
+    public void verResumoFinanceiroView() {
+        System.out.println("--- RESUMO DE FINANÇAS ---");
+        service.resumoDeFinancas();
     }
 
     // UTILITÁRIAS

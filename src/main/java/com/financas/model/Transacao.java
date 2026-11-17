@@ -43,6 +43,18 @@ public class Transacao {
         this.tipoTransacao = TipoTransacao.valueOf(dadosTransacao.tipoTransacao());
     }
 
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public TipoTransacao getTipoTransacao() {
+        return tipoTransacao;
+    }
+
     @Override
     public String toString() {
         return "Transacao{" +

@@ -6,12 +6,11 @@ import com.financas.service.JsonService;
 import java.util.Scanner;
 
 public class MenuConsole {
-    private Scanner sc = new Scanner(System.in);
-    private ContaFinanceira conta;
-    private OpcoesView opcoesView;
+    private final Scanner sc = new Scanner(System.in);
+    private final OpcoesView opcoesView;
 
     public MenuConsole() {
-        conta = JsonService.importarJson();
+        ContaFinanceira conta = JsonService.importarJson();
         opcoesView = new OpcoesView(conta);
     }
 
@@ -26,12 +25,13 @@ public class MenuConsole {
                 case 2 -> opcoesView.registrarNovaReceitaView();
                 case 3 -> opcoesView.registrarNovaDespesaView();
                 case 4 -> opcoesView.listarTransacoesView();
+                case 5 -> opcoesView.verResumoFinanceiroView();
             }
         } while (true);
     }
 
     private void exibirMenu() {
-        System.out.println("===============");
+        System.out.println("\n===============");
         System.out.println("Menu Principal");
         System.out.println("===============\n");
         System.out.println("Escolha o número da operação");
