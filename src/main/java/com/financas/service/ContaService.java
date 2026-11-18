@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ContaService {
 
-    private ContaFinanceira conta;
+    private final ContaFinanceira conta;
 
     public ContaService(ContaFinanceira conta) {
         this.conta = conta;
@@ -65,6 +65,14 @@ public class ContaService {
                 conta.getSaldoAtual(),
                 conta.calcularTotalReceitas(),
                 conta.calcularTotalDespesas());
+    }
+
+    public DadosConta exportarRelatorio() {
+        DadosConta contaDto = new DadosConta(conta.getLimiteMensal(),
+                conta.getSaldoAtual(),
+                conta.getDadosTransacoes());
+        JsonService.exportarJson(contaDto);
+        return null;
     }
 
     public void bloquearDespesa() {

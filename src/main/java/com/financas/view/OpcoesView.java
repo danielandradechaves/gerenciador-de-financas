@@ -6,16 +6,14 @@ import com.financas.exception.ValorInvalidoException;
 import com.financas.model.*;
 import com.financas.service.ContaService;
 import com.financas.service.JsonService;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
 
 public class OpcoesView {
-    private Scanner sc = new Scanner(System.in);
-    private ContaService service;
+    private final Scanner sc = new Scanner(System.in);
+    private final ContaService service;
 
     public OpcoesView() {
         this.service = new ContaService(JsonService.importarJson());
@@ -87,18 +85,8 @@ public class OpcoesView {
         System.out.println("Despesa total: " + resumo.totalDespesas() + " R$");
     }
 
-    public void exportarRelatorio() {
-        String json = "{\"limite-mensal\": 5000.00," +
-                "\"saldo-atual\": 1300.00," +
-                "\"transacoes\": [{\"id\": \"abcde\"," +
-                "\"valor\": 1800.00," +
-                "\"data\": \"2026-11-17\"," +
-                "\"categoria\": \"SALARIO\"," +
-                "\"tipo-transacao\": \"DESPESA\"}]}";
-
-        ObjectMapper mapper = new ObjectMapper();
-        DadosConta contaDto = mapper.readValue(json, new TypeReference<>() {
-        });
+    public void exportarRelatorioView() {
+        DadosConta contaDto = service.exportarRelatorio();
         System.out.println(contaDto);
     }
 

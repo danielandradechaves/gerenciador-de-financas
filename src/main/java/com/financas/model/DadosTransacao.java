@@ -10,6 +10,6 @@ public record DadosTransacao (String id,
                               String descricao,
                               BigDecimal valor,
                               LocalDate data,
-                              String categoria,
-                              @JsonAlias("tipo-transacao") String tipoTransacao){
+                              Categoria categoria,
+                              @JsonAlias("tipo-transacao") TipoTransacao tipoTransacao){
 }

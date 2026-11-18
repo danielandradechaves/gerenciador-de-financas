@@ -1,8 +1,5 @@
 package com.financas.view;
 
-import com.financas.model.ContaFinanceira;
-import com.financas.service.JsonService;
-
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -23,7 +20,7 @@ public class MenuConsole {
                     case 3 -> opcoesView.registrarNovaDespesaView();
                     case 4 -> opcoesView.listarTransacoesView();
                     case 5 -> opcoesView.verResumoFinanceiroView();
-                    case 6 -> opcoesView.exportarRelatorio();
+                    case 6 -> opcoesView.exportarRelatorioView();
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Essa operação só aceita números");

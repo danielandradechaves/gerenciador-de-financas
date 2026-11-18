@@ -12,7 +12,7 @@ public class ContaFinanceira {
     private BigDecimal limiteMensal;
     // saldo na conta
     private BigDecimal saldoAtual;
-    private List<Transacao> transacoes;
+    private final List<Transacao> transacoes;
 
     public ContaFinanceira() {
         this.limiteMensal = BigDecimal.ZERO;
@@ -43,6 +43,17 @@ public class ContaFinanceira {
         return Collections.unmodifiableList(transacoes);
     }
 
+    public List<DadosTransacao> getDadosTransacoes() {
+        return transacoes.stream()
+                .map(t -> new DadosTransacao(t.getId(),
+                        t.getDescricao(),
+                        t.getValor(),
+                        t.getData(),
+                        t.getCategoria(),
+                        t.getTipoTransacao()))
+                .toList();
+    }
+
     public void atualizarLimite(BigDecimal novoLimite) {
         limiteMensal = novoLimite;
     }
@@ -70,9 +81,10 @@ public class ContaFinanceira {
 
     public BigDecimal calcularTotalDespesas() {
         BigDecimal totalDespesas = BigDecimal.ZERO;
-        for (Transacao t: transacoes)
-        if (t.getTipoTransacao() == TipoTransacao.DESPESA) {
-            totalDespesas = totalDespesas.add(t.getValor());
+        for (Transacao t: transacoes) {
+            if (t.getTipoTransacao() == TipoTransacao.DESPESA) {
+                totalDespesas = totalDespesas.add(t.getValor());
+            }
         }
         return totalDespesas;
     }
@@ -85,14 +97,6 @@ public class ContaFinanceira {
     }
 
     public boolean saldoNegativo() {
-        if (saldoAtual.compareTo(BigDecimal.ZERO) < 0) {
-            return true;
-        }
-        return false;
+        return saldoAtual.compareTo(BigDecimal.ZERO) < 0;
     }
-
-    //Métodos utilitários de cálculo:
-    //calcularTotalReceitas()
-    //calcularTotalDespesas()
-    //calcularSaldo() (Receitas - Despesas).
 }

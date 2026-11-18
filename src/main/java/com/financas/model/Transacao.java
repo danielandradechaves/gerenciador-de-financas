@@ -36,24 +36,32 @@ public class Transacao {
         this.descricao = dadosTransacao.descricao();
         this.valor = dadosTransacao.valor();
         this.data = dadosTransacao.data();
-        this.categoria = Categoria.valueOf(dadosTransacao.categoria());
-        this.tipoTransacao = TipoTransacao.valueOf(dadosTransacao.tipoTransacao());
+        this.categoria = dadosTransacao.categoria();
+        this.tipoTransacao = dadosTransacao.tipoTransacao();
     }
 
-    public TipoTransacao getTipoTransacao() {
-        return tipoTransacao;
+    public String getId() {
+        return id;
     }
 
-    public Categoria getCategoria() {
-        return categoria;
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
     }
 
     public LocalDate getData() {
         return data;
     }
 
-    public BigDecimal getValor() {
-        return valor;
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public TipoTransacao getTipoTransacao() {
+        return tipoTransacao;
     }
 
     @Override
