@@ -5,6 +5,7 @@ import com.financas.exception.SaldoInsuficienteException;
 import com.financas.exception.ValorInvalidoException;
 import com.financas.model.*;
 import com.financas.service.ContaService;
+import com.financas.service.JsonService;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -14,14 +15,18 @@ import java.util.Scanner;
 
 public class OpcoesView {
     private Scanner sc = new Scanner(System.in);
-    private ContaService service = new ContaService();
+    private ContaService service;
+
+    public OpcoesView() {
+        this.service = new ContaService(JsonService.importarJson());
+    }
 
     public void definirLimiteView() {
         System.out.println("\n--- DEFINIR NOVO LIMITE ---");
         do {
             System.out.print("Defina o valor do novo limite: ");
             try {
-                BigDecimal novoLimite = new BigDecimal(sc.nextLine().trim().replace(".", ","));
+                BigDecimal novoLimite = new BigDecimal(sc.nextLine().trim().replace(",", "."));
                 service.definirLimite(novoLimite);
                 break;
             } catch (NumberFormatException e) {
@@ -39,10 +44,12 @@ public class OpcoesView {
 
         BigDecimal valor = selecionarValor();
 
+        String descricao = selecionarDescricao();
+
         Categoria categoria = selecionarCategoria(TipoTransacao.RECEITA);
 
 
-        service.registrarReceita(valor, categoria);
+        service.registrarReceita(valor, descricao, categoria);
         System.out.println("Operação finalizada com sucesso");
     }
 
@@ -53,14 +60,12 @@ public class OpcoesView {
 
             BigDecimal valor = selecionarValor();
 
+            String descricao = selecionarDescricao();
+
             Categoria categoria = selecionarCategoria(TipoTransacao.DESPESA);
 
-            try {
-                service.registrarDespesa(valor, categoria);
-                System.out.println("Operação finalizada sucesso");
-            } catch (LimiteUltrapassadoException e) {
-                System.out.println(e.getMessage());
-            }
+            service.registrarDespesa(valor, descricao, categoria);
+            System.out.println("Operação finalizada sucesso");
         } catch (SaldoInsuficienteException | LimiteUltrapassadoException e) {
             System.out.println(e.getMessage());
         }
@@ -109,6 +114,18 @@ public class OpcoesView {
                 System.out.println("------------------------------------------");
                 System.out.println("Essa operação só aceita valores monetários");
                 System.out.println("------------------------------------------");
+            }
+        } while (true);
+    }
+
+    private String selecionarDescricao() {
+        do {
+            System.out.print("Descrição: ");
+            String descricao = sc.nextLine().trim().toLowerCase();
+            if (!descricao.isEmpty()) {
+                return descricao;
+            }else {
+                System.out.println("A descrição não pode ser vazia");
             }
         } while (true);
     }

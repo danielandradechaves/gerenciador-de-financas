@@ -1,5 +1,6 @@
 package com.financas.model;
 
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 import java.math.BigDecimal;

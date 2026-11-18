@@ -2,6 +2,7 @@ package com.financas.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ContaFinanceira {
@@ -9,22 +10,18 @@ public class ContaFinanceira {
 
     // limite de gastos
     private BigDecimal limiteMensal;
-    // gastos do mês (volta a zero todo mês)
-    private BigDecimal totalGasto;
     // saldo na conta
     private BigDecimal saldoAtual;
     private List<Transacao> transacoes;
 
     public ContaFinanceira() {
         this.limiteMensal = BigDecimal.ZERO;
-        this.totalGasto = BigDecimal.ZERO;
         this.saldoAtual = BigDecimal.ZERO;
         this.transacoes = new ArrayList<>();
     }
 
     public ContaFinanceira(DadosConta dadosConta) {
         this.limiteMensal = dadosConta.limiteMensal();
-        this.totalGasto = dadosConta.totalGasto();
         this.saldoAtual = dadosConta.saldoAtual();
         if (dadosConta.dadosTransacao() == null || dadosConta.dadosTransacao().isEmpty()) {
             this.transacoes = new ArrayList<>();
@@ -38,24 +35,16 @@ public class ContaFinanceira {
         return limiteMensal;
     }
 
-    public BigDecimal getTotalGasto() {
-        return totalGasto;
-    }
-
     public BigDecimal getSaldoAtual() {
         return saldoAtual;
     }
 
     public List<Transacao> getTransacoes() {
-        return transacoes;
+        return Collections.unmodifiableList(transacoes);
     }
 
     public void atualizarLimite(BigDecimal novoLimite) {
         limiteMensal = novoLimite;
-    }
-
-    public void atualizarTotalGasto(BigDecimal valor) {
-        totalGasto = totalGasto.add(valor);
     }
 
     public void addTransacao(Transacao novaTransacao) {
@@ -89,12 +78,10 @@ public class ContaFinanceira {
     }
 
     public boolean limiteUltrapassado() {
-        BigDecimal limiteAtual = calcularTotalDespesas();
-        // Retorna true apenas se limiteAtual for MAIOR que limiteMensal
-        if (limiteAtual.compareTo(limiteMensal) >= 0) {
-            return true;
+        if(limiteMensal == null || limiteMensal.compareTo(BigDecimal.ZERO) <= 0){
+            return false;
         }
-        return false;
+        return calcularTotalDespesas().compareTo(limiteMensal) > 0;
     }
 
     public boolean saldoNegativo() {

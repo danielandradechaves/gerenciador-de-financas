@@ -14,8 +14,7 @@ public class MenuConsole {
         do {
             exibirMenu();
             try {
-                int opcao = sc.nextInt();
-                sc.nextLine();
+                int opcao = Integer.parseInt(sc.nextLine());
 
                 switch (opcao) {
                     case 0 -> System.exit(0);

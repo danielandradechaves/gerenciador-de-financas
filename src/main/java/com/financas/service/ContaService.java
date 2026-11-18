@@ -12,9 +12,9 @@ public class ContaService {
 
     private ContaFinanceira conta;
 
-    public ContaService() {
-//        conta = JsonService.importarJson();
-        this.testes();
+    public ContaService(ContaFinanceira conta) {
+        this.conta = conta;
+//        this.testes();
     }
 
     public void definirLimite(BigDecimal novoLimite) {
@@ -25,27 +25,27 @@ public class ContaService {
         conta.atualizarLimite(novoLimite);
     }
 
-    public void registrarReceita(BigDecimal valor, Categoria categoria) {
+    public void registrarReceita(BigDecimal valor, String descricao, Categoria categoria) {
         // registra o dinheiro que foi adicionado à conta
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
             valorInvalido();
         }
 
-        Transacao receita = new Transacao(valor, categoria, TipoTransacao.RECEITA);
+        Transacao receita = new Transacao(valor, descricao, categoria, TipoTransacao.RECEITA);
         conta.addTransacao(receita);
         conta.calcularSaldo();
     }
 
-    public void registrarDespesa(BigDecimal valor, Categoria categoria) {
+    public void registrarDespesa(BigDecimal valor, String descricao, Categoria categoria) {
         // registra o dinheiro que foi gasto à conta
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
             valorInvalido();
         }
 
-        Transacao despesa = new Transacao(valor, categoria, TipoTransacao.DESPESA);
+        Transacao despesa = new Transacao(valor, descricao, categoria, TipoTransacao.DESPESA);
         conta.addTransacao(despesa);
         conta.calcularSaldo();
-        conta.atualizarTotalGasto(valor);
+        conta.calcularTotalDespesas();
 
         // Verifica se o saldo é negativo
         if (conta.limiteUltrapassado()) {
@@ -61,7 +61,7 @@ public class ContaService {
 
     public DadosResumo resumoDeFinancas() {
         return new DadosResumo(conta.getLimiteMensal(),
-                conta.getTotalGasto(),
+                conta.calcularTotalDespesas(),
                 conta.getSaldoAtual(),
                 conta.calcularTotalReceitas(),
                 conta.calcularTotalDespesas());
@@ -83,11 +83,11 @@ public class ContaService {
         throw new ValorInvalidoException("O limite não pode ser igual ou menor que 0");
     }
 
-    private void testes() {
-        DadosConta mockDados = new DadosConta(new BigDecimal("1000"),
-                BigDecimal.ZERO,
-                new BigDecimal("1000"),
-                null);
-        conta = new ContaFinanceira(mockDados);
-    }
+//    private void testes() {
+//        DadosConta mockDados = new DadosConta(new BigDecimal("1000"),
+//                BigDecimal.ZERO,
+//                new BigDecimal("1000"),
+//                null);
+//        conta = new ContaFinanceira(mockDados);
+//    }
 }

@@ -7,14 +7,16 @@ import java.util.UUID;
 public class Transacao {
     //Responsabilidades: Validações básicas no construtor
 
-    private String id;
-    private BigDecimal valor;
-    private LocalDate data;
-    private Categoria categoria;
-    private TipoTransacao tipoTransacao;
+    private final String id;
+    private final String descricao;
+    private final BigDecimal valor;
+    private final LocalDate data;
+    private final Categoria categoria;
+    private final TipoTransacao tipoTransacao;
 
     public Transacao(
                      BigDecimal valor,
+                     String descricao,
                      Categoria categoria,
                      TipoTransacao tipoTransacao) {
         if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
@@ -22,6 +24,7 @@ public class Transacao {
         }
         this.id = UUID.randomUUID().toString();
         this.valor = valor;
+        this.descricao = descricao;
         this.data = LocalDate.now();
         this.categoria = categoria;
         this.tipoTransacao = tipoTransacao;
@@ -30,22 +33,27 @@ public class Transacao {
     public Transacao(DadosTransacao dadosTransacao) {
         // para dados vindos do json
         this.id = dadosTransacao.id();
+        this.descricao = dadosTransacao.descricao();
         this.valor = dadosTransacao.valor();
         this.data = dadosTransacao.data();
         this.categoria = Categoria.valueOf(dadosTransacao.categoria());
         this.tipoTransacao = TipoTransacao.valueOf(dadosTransacao.tipoTransacao());
     }
 
-    public BigDecimal getValor() {
-        return valor;
+    public TipoTransacao getTipoTransacao() {
+        return tipoTransacao;
     }
 
     public Categoria getCategoria() {
         return categoria;
     }
 
-    public TipoTransacao getTipoTransacao() {
-        return tipoTransacao;
+    public LocalDate getData() {
+        return data;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
     }
 
     @Override

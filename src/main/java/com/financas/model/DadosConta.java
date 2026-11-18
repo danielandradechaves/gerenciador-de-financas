@@ -8,7 +8,6 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DadosConta(@JsonAlias("limite-mensal") BigDecimal limiteMensal,
-                         @JsonAlias("total-gasto") BigDecimal totalGasto,
                          @JsonAlias("saldo-atual") BigDecimal saldoAtual,
                          @JsonAlias("transacoes") List<DadosTransacao> dadosTransacao) {
 }
