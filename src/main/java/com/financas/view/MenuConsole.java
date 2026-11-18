@@ -7,12 +7,7 @@ import java.util.Scanner;
 
 public class MenuConsole {
     private final Scanner sc = new Scanner(System.in);
-    private final OpcoesView opcoesView;
-
-    public MenuConsole() {
-        ContaFinanceira conta = JsonService.importarJson();
-        opcoesView = new OpcoesView(conta);
-    }
+    private final OpcoesView opcoesView = new OpcoesView();
 
     public void iniciar() {
         do {
@@ -26,6 +21,7 @@ public class MenuConsole {
                 case 3 -> opcoesView.registrarNovaDespesaView();
                 case 4 -> opcoesView.listarTransacoesView();
                 case 5 -> opcoesView.verResumoFinanceiroView();
+                case 6 -> opcoesView.exportarRelatorio();
             }
         } while (true);
     }

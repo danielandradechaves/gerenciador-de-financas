@@ -1,12 +1,15 @@
 package com.financas.view;
 
 import com.financas.exception.LimiteUltrapassadoException;
+import com.financas.exception.SaldoInsuficienteException;
 import com.financas.exception.ValorInvalidoException;
 import com.financas.model.Categoria;
-import com.financas.model.ContaFinanceira;
+import com.financas.model.DadosConta;
 import com.financas.model.TipoTransacao;
 import com.financas.model.Transacao;
 import com.financas.service.ContaService;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,11 +17,7 @@ import java.util.Scanner;
 
 public class OpcoesView {
     private Scanner sc = new Scanner(System.in);
-    private ContaService service;
-
-    public OpcoesView(ContaFinanceira conta) {
-        this.service = new ContaService(conta);
-    }
+    private ContaService service = new ContaService();
 
     public void definirLimiteView() {
         System.out.println("\n--- DEFINIR NOVO LIMITE ---");
@@ -41,28 +40,29 @@ public class OpcoesView {
     public void registrarNovaReceitaView() {
         System.out.println("\n--- REGISTRAR NOVA RECEITA ---");
 
-        String descricao = selecionarDescricao();
-
         BigDecimal valor = selecionarValor();
 
         Categoria categoria = selecionarCategoria(TipoTransacao.RECEITA);
 
 
-        service.registrarReceita(descricao, valor, categoria);
+        service.registrarReceita(valor, categoria);
     }
 
     public void registrarNovaDespesaView() {
-        System.out.println("\n--- REGISTRAR NOVA DESPESA ---");
-
-        String descricao = selecionarDescricao();
-
-        BigDecimal valor = selecionarValor();
-
-        Categoria categoria = selecionarCategoria(TipoTransacao.DESPESA);
-
         try {
-            service.registrarDespesa(descricao, valor, categoria);
-        } catch (LimiteUltrapassadoException e) {
+            service.bloquearDespesa();
+            System.out.println("\n--- REGISTRAR NOVA DESPESA ---");
+
+            BigDecimal valor = selecionarValor();
+
+            Categoria categoria = selecionarCategoria(TipoTransacao.DESPESA);
+
+            try {
+                service.registrarDespesa(valor, categoria);
+            } catch (LimiteUltrapassadoException e) {
+                System.out.println(e.getMessage());
+            }
+        }catch (SaldoInsuficienteException | LimiteUltrapassadoException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -78,18 +78,29 @@ public class OpcoesView {
         service.resumoDeFinancas();
     }
 
-    // UTILITÁRIAS
+    public void exportarRelatorio() {
+        String json = "{\"limite-mensal\": 5000.00," +
+                "\"saldo-atual\": 1300.00," +
+                "\"transacoes\": [{\"id\": \"abcde\"," +
+                "\"descricao\": \"salario\"," +
+                "\"valor\": 1800.00," +
+                "\"data\": \"2026-11-17\"," +
+                "\"categoria\": \"Salário\"," +
+                "\"tipo-transacao\": \"DESPESA\"}]}";
 
-    private String selecionarDescricao() {
-        System.out.print("Descrição: ");
-        return sc.nextLine();
+        ObjectMapper mapper = new ObjectMapper();
+        DadosConta contaDto = mapper.readValue(json, new TypeReference<>() {
+        });
+        System.out.println(contaDto);
     }
+
+    // UTILITÁRIAS
 
     private BigDecimal selecionarValor() {
         do {
             System.out.print("Valor: ");
             try {
-                return new BigDecimal(sc.nextLine().trim().replace(".", ","));
+                return new BigDecimal(sc.nextLine().trim().replace(",", "."));
 
             } catch (NumberFormatException e) {
                 System.out.println("------------------------------------------");

@@ -13,6 +13,7 @@ public enum Categoria {
     TRANSPORTE("Transporte", TipoTransacao.DESPESA),
     OUTROS("Outros", TipoTransacao.DESPESA),
     SALARIO("Salário", TipoTransacao.RECEITA),
+    INVESTIMENTO("Investimento", TipoTransacao.RECEITA),
     VENDA("Venda", TipoTransacao.RECEITA),
     FREELANCER("Trabalho freelancer", TipoTransacao.RECEITA);
 

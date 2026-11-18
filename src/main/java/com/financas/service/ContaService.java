@@ -1,6 +1,7 @@
 package com.financas.service;
 
 import com.financas.exception.LimiteUltrapassadoException;
+import com.financas.exception.SaldoInsuficienteException;
 import com.financas.exception.ValorInvalidoException;
 import com.financas.model.*;
 
@@ -11,48 +12,51 @@ public class ContaService {
 
     private ContaFinanceira conta;
 
-    public ContaService(ContaFinanceira conta) {
-        this.conta = conta;
+    public ContaService() {
+//        conta = JsonService.importarJson();
+        this.testes();
     }
 
     public void definirLimite(BigDecimal novoLimite) {
+        // define o máximo de dinheiro que o usuário que gastar
         if (novoLimite.compareTo(BigDecimal.ZERO) <= 0) {
             valorInvalido();
         }
         conta.atualizarLimite(novoLimite);
     }
 
-    public void registrarReceita(String descricao, BigDecimal valor, Categoria categoria) {
+    public void registrarReceita(BigDecimal valor, Categoria categoria) {
+        // registra o dinheiro que foi adicionado à conta
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
             valorInvalido();
         }
-        ;
         conta.atualizarSaldoReceita(valor);
 
-        Transacao receita = new Transacao(descricao, valor, categoria, TipoTransacao.RECEITA);
+        Transacao receita = new Transacao(valor, categoria, TipoTransacao.RECEITA);
+        System.out.println(receita);
+
         conta.addTransacao(receita);
 
-        System.out.println(receita);
         System.out.println("Saldo atual: " + conta.getSaldoAtual() + " R$");
     }
 
-    public void registrarDespesa(String descricao, BigDecimal valor, Categoria categoria) {
+    public void registrarDespesa(BigDecimal valor, Categoria categoria) {
+        // registra o dinheiro que foi gasto à conta
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
             valorInvalido();
-        }
-
-        // Verifica se o saldo é negativo antes de atualizar a conta
-        BigDecimal verificaSaldo = conta.getSaldoAtual().subtract(valor);
-        if (verificaSaldo.compareTo(BigDecimal.ZERO) < 0) {
-            // Se ultrapassar, lança a exceção e não insere a despesa (ou emite o aviso conforme o fluxo desejado).
-            throw new LimiteUltrapassadoException("Transação não concluída: O limite Mensal de R$ " +
-                    conta.getLimiteMensal() + " foi ultrapassado");
         }
 
         conta.atualizarSaldoDespesa(valor);
 
-        Transacao despesa = new Transacao(descricao, valor, categoria, TipoTransacao.DESPESA);
+        Transacao despesa = new Transacao(valor, categoria, TipoTransacao.DESPESA);
         conta.addTransacao(despesa);
+
+        // Verifica se o saldo é negativo
+        if (conta.limiteUltrapassado()) {
+            // Se ultrapassar, lança um aviso.
+            System.out.println("ATENÇÃO! O limite Mensal de R$ " +
+                    conta.getLimiteMensal() + " foi ultrapassado!");
+        }
 
         System.out.println(despesa);
         System.out.println("Saldo atual: " + conta.getSaldoAtual() + " R$");
@@ -78,15 +82,34 @@ public class ContaService {
                 }
             }
         }
-            System.out.println("Limite mensal: " + conta.getLimiteMensal() + " R$");
-            System.out.println("Saldo atual: " + saldoAtual + " R$");
-            System.out.println("Total de receitas: " + totalReceitas + " R$");
-            System.out.println("Total de despesas: " + totalDespesas + " R$");
+        System.out.println("Limite mensal: " + conta.getLimiteMensal() + " R$");
+        System.out.println("Gastos do mês: " + conta.getTotalGasto() + " R$");
+        System.out.println("Saldo atual: " + saldoAtual + " R$");
+        System.out.println("Total de receitas: " + totalReceitas + " R$");
+        System.out.println("Total de despesas: " + totalDespesas + " R$");
+    }
+
+    public void bloquearDespesa() {
+        if (conta.limiteUltrapassado()) {
+            throw new LimiteUltrapassadoException("O seu limite de gastos mensais foi ultrapassado," +
+                    " redefina o limite ou espere o proximo mês para adicionar mais despesas.");
+        } else if (conta.saldoNegativo()) {
+            throw new SaldoInsuficienteException("ATENÇÃO! Seu saldo é insuficiente adicionar novas despesas.\n"
+                    + " Saldo atual: " + conta.getSaldoAtual());
+        }
     }
 
     // UTILITÁRIAS
 
     private void valorInvalido() {
         throw new ValorInvalidoException("O limite não pode ser igual ou menor que 0");
+    }
+
+    private void testes() {
+        DadosConta mockDados = new DadosConta(new BigDecimal("1000"),
+                BigDecimal.ZERO,
+                new BigDecimal("1000"),
+                null);
+        conta = new ContaFinanceira(mockDados);
     }
 }
