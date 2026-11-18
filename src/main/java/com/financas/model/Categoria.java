@@ -1,5 +1,6 @@
 package com.financas.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,15 +30,14 @@ public enum Categoria {
         return tipoTransacao;
     }
 
-    public static void exibirCategorias (TipoTransacao tipoTransacao) {
-        List<Categoria> listaCategorias = Arrays.stream(Categoria.values())
+    public String getTexto() {
+        return texto;
+    }
+
+    public static List<Categoria> exibirCategorias (TipoTransacao tipoTransacao) {
+        return Arrays.stream(Categoria.values())
                 .filter(c -> c.getTipoTransacao() == tipoTransacao)
                 .toList();
-
-
-        for (int i = 0; i < listaCategorias.size(); i++) {
-            System.out.printf("[%d] - %s\n", i + 1, listaCategorias.get(i).texto);
-        }
     }
 
     public static List<Categoria> obterCategoriaPorTipo(TipoTransacao tipoTransacao) {

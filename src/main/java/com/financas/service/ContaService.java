@@ -30,14 +30,10 @@ public class ContaService {
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
             valorInvalido();
         }
-        conta.atualizarSaldoReceita(valor);
 
         Transacao receita = new Transacao(valor, categoria, TipoTransacao.RECEITA);
-        System.out.println(receita);
-
         conta.addTransacao(receita);
-
-        System.out.println("Saldo atual: " + conta.getSaldoAtual() + " R$");
+        conta.calcularSaldo();
     }
 
     public void registrarDespesa(BigDecimal valor, Categoria categoria) {
@@ -46,10 +42,10 @@ public class ContaService {
             valorInvalido();
         }
 
-        conta.atualizarSaldoDespesa(valor);
-
         Transacao despesa = new Transacao(valor, categoria, TipoTransacao.DESPESA);
         conta.addTransacao(despesa);
+        conta.calcularSaldo();
+        conta.atualizarTotalGasto(valor);
 
         // Verifica se o saldo é negativo
         if (conta.limiteUltrapassado()) {
@@ -57,36 +53,18 @@ public class ContaService {
             System.out.println("ATENÇÃO! O limite Mensal de R$ " +
                     conta.getLimiteMensal() + " foi ultrapassado!");
         }
-
-        System.out.println(despesa);
-        System.out.println("Saldo atual: " + conta.getSaldoAtual() + " R$");
     }
 
     public List<Transacao> listarTransacoes() {
         return conta.getTransacoes();
     }
 
-    public void resumoDeFinancas() {
-        List<Transacao> transacoes = conta.getTransacoes();
-        BigDecimal totalReceitas = BigDecimal.ZERO;
-        BigDecimal totalDespesas = BigDecimal.ZERO;
-        BigDecimal saldoAtual = conta.getSaldoAtual();
-        // limite definido vs total gasto até agora
-        // gastos agrupados por categoria
-        if (transacoes.size() > 0) {
-            for (Transacao t : transacoes) {
-                if (t.getTipoTransacao() == TipoTransacao.RECEITA) {
-                    totalReceitas = totalReceitas.add(t.getValor());
-                } else if (t.getTipoTransacao() == TipoTransacao.DESPESA) {
-                    totalDespesas = totalDespesas.add(t.getValor());
-                }
-            }
-        }
-        System.out.println("Limite mensal: " + conta.getLimiteMensal() + " R$");
-        System.out.println("Gastos do mês: " + conta.getTotalGasto() + " R$");
-        System.out.println("Saldo atual: " + saldoAtual + " R$");
-        System.out.println("Total de receitas: " + totalReceitas + " R$");
-        System.out.println("Total de despesas: " + totalDespesas + " R$");
+    public DadosResumo resumoDeFinancas() {
+        return new DadosResumo(conta.getLimiteMensal(),
+                conta.getTotalGasto(),
+                conta.getSaldoAtual(),
+                conta.calcularTotalReceitas(),
+                conta.calcularTotalDespesas());
     }
 
     public void bloquearDespesa() {

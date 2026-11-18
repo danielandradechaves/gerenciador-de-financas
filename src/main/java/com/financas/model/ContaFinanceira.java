@@ -26,9 +26,9 @@ public class ContaFinanceira {
         this.limiteMensal = dadosConta.limiteMensal();
         this.totalGasto = dadosConta.totalGasto();
         this.saldoAtual = dadosConta.saldoAtual();
-        if(dadosConta.dadosTransacao() == null || dadosConta.dadosTransacao().isEmpty()) {
+        if (dadosConta.dadosTransacao() == null || dadosConta.dadosTransacao().isEmpty()) {
             this.transacoes = new ArrayList<>();
-        }else{
+        } else {
             this.transacoes = dadosConta.dadosTransacao().stream()
                     .map(Transacao::new).toList();
         }
@@ -54,12 +54,7 @@ public class ContaFinanceira {
         limiteMensal = novoLimite;
     }
 
-    public void atualizarSaldoReceita(BigDecimal valor) {
-        saldoAtual = saldoAtual.add(valor);
-    }
-
-    public void atualizarSaldoDespesa(BigDecimal valor) {
-        saldoAtual = saldoAtual.subtract(valor);
+    public void atualizarTotalGasto(BigDecimal valor) {
         totalGasto = totalGasto.add(valor);
     }
 
@@ -67,13 +62,36 @@ public class ContaFinanceira {
         transacoes.add(novaTransacao);
     }
 
+    public void calcularSaldo() {
+        BigDecimal receitas = calcularTotalReceitas();
+        BigDecimal despesas = calcularTotalDespesas();
+
+        saldoAtual = receitas.subtract(despesas);
+    }
+
+    public BigDecimal calcularTotalReceitas() {
+        BigDecimal totalReceitas = BigDecimal.ZERO;
+        for (Transacao t : transacoes) {
+            if (t.getTipoTransacao() == TipoTransacao.RECEITA) {
+                totalReceitas = totalReceitas.add(t.getValor());
+            }
+        }
+        return totalReceitas;
+    }
+
+    public BigDecimal calcularTotalDespesas() {
+        BigDecimal totalDespesas = BigDecimal.ZERO;
+        for (Transacao t: transacoes)
+        if (t.getTipoTransacao() == TipoTransacao.DESPESA) {
+            totalDespesas = totalDespesas.add(t.getValor());
+        }
+        return totalDespesas;
+    }
+
     public boolean limiteUltrapassado() {
-        BigDecimal limiteAtual = transacoes.stream()
-                .filter(t -> t.getTipoTransacao() == TipoTransacao.DESPESA)
-                .map(Transacao::getValor)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal limiteAtual = calcularTotalDespesas();
         // Retorna true apenas se limiteAtual for MAIOR que limiteMensal
-        if(limiteAtual.compareTo(limiteMensal) >= 0) {
+        if (limiteAtual.compareTo(limiteMensal) >= 0) {
             return true;
         }
         return false;

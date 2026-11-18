@@ -3,10 +3,7 @@ package com.financas.view;
 import com.financas.exception.LimiteUltrapassadoException;
 import com.financas.exception.SaldoInsuficienteException;
 import com.financas.exception.ValorInvalidoException;
-import com.financas.model.Categoria;
-import com.financas.model.DadosConta;
-import com.financas.model.TipoTransacao;
-import com.financas.model.Transacao;
+import com.financas.model.*;
 import com.financas.service.ContaService;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -46,6 +43,7 @@ public class OpcoesView {
 
 
         service.registrarReceita(valor, categoria);
+        System.out.println("Operação finalizada com sucesso");
     }
 
     public void registrarNovaDespesaView() {
@@ -59,10 +57,11 @@ public class OpcoesView {
 
             try {
                 service.registrarDespesa(valor, categoria);
+                System.out.println("Operação finalizada sucesso");
             } catch (LimiteUltrapassadoException e) {
                 System.out.println(e.getMessage());
             }
-        }catch (SaldoInsuficienteException | LimiteUltrapassadoException e) {
+        } catch (SaldoInsuficienteException | LimiteUltrapassadoException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -75,17 +74,21 @@ public class OpcoesView {
 
     public void verResumoFinanceiroView() {
         System.out.println("--- RESUMO DE FINANÇAS ---");
-        service.resumoDeFinancas();
+        DadosResumo resumo = service.resumoDeFinancas();
+        System.out.println("Limite mensal: " + resumo.limiteMensal() + " R$");
+        System.out.println("Total Gasto: " + resumo.totalGasto() + " R$");
+        System.out.println("Saldo Atual: " + resumo.saldoAtual() + " R$");
+        System.out.println("Receita total: " + resumo.totalReceitas() + " R$");
+        System.out.println("Despesa total: " + resumo.totalDespesas() + " R$");
     }
 
     public void exportarRelatorio() {
         String json = "{\"limite-mensal\": 5000.00," +
                 "\"saldo-atual\": 1300.00," +
                 "\"transacoes\": [{\"id\": \"abcde\"," +
-                "\"descricao\": \"salario\"," +
                 "\"valor\": 1800.00," +
                 "\"data\": \"2026-11-17\"," +
-                "\"categoria\": \"Salário\"," +
+                "\"categoria\": \"SALARIO\"," +
                 "\"tipo-transacao\": \"DESPESA\"}]}";
 
         ObjectMapper mapper = new ObjectMapper();
@@ -114,7 +117,11 @@ public class OpcoesView {
         List<Categoria> categoriasDisponiveis = Categoria.obterCategoriaPorTipo(tipoTransacao);
 
         System.out.println("Categorias disponíveis:");
-        Categoria.exibirCategorias(tipoTransacao);
+        List<Categoria> categorias = Categoria.exibirCategorias(tipoTransacao);
+        for (int i = 0; i < categorias.size(); i++) {
+            System.out.printf("[%d] - %s\n", i + 1, categorias.get(i).getTexto());
+        }
+
 
         do {
             System.out.print("Escolha a categoria (número): ");
