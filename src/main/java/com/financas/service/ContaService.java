@@ -6,7 +6,9 @@ import com.financas.exception.ValorInvalidoException;
 import com.financas.model.*;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 
 public class ContaService {
 
@@ -55,8 +57,8 @@ public class ContaService {
         }
     }
 
-    public List<Transacao> listarTransacoes() {
-        return conta.getTransacoes();
+    public Map<YearMonth, List<Transacao>> listarTransacoes() {
+        return conta.getTransacoesPorMesEAno();
     }
 
     public DadosResumo resumoDeFinancas() {

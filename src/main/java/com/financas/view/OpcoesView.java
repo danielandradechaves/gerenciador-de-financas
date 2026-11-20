@@ -8,7 +8,9 @@ import com.financas.service.ContaService;
 import com.financas.service.JsonService;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class OpcoesView {
@@ -71,8 +73,11 @@ public class OpcoesView {
 
     public void listarTransacoesView() {
         System.out.println("--- LISTAR TRANSAÇÕES ---");
-        List<Transacao> listaTransacao = service.listarTransacoes();
-        listaTransacao.forEach(System.out::println);
+        Map<YearMonth, List<Transacao>> listaTransacao = service.listarTransacoes();
+        listaTransacao.forEach((ym, t) -> {
+            System.out.println(ym);
+            t.forEach(System.out::println);
+        });
     }
 
     public void verResumoFinanceiroView() {

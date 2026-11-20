@@ -1,9 +1,13 @@
 package com.financas.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ContaFinanceira {
     // Manter a lista de transações protegida.
@@ -26,8 +30,10 @@ public class ContaFinanceira {
         if (dadosConta.dadosTransacao() == null || dadosConta.dadosTransacao().isEmpty()) {
             this.transacoes = new ArrayList<>();
         } else {
-            this.transacoes = dadosConta.dadosTransacao().stream()
-                    .map(Transacao::new).toList();
+            this.transacoes = new ArrayList<>(dadosConta.dadosTransacao()
+                    .stream()
+                    .map(Transacao::new)
+                    .toList());
         }
     }
 
@@ -59,6 +65,7 @@ public class ContaFinanceira {
     }
 
     public void addTransacao(Transacao novaTransacao) {
+
         transacoes.add(novaTransacao);
     }
 
@@ -81,7 +88,7 @@ public class ContaFinanceira {
 
     public BigDecimal calcularTotalDespesas() {
         BigDecimal totalDespesas = BigDecimal.ZERO;
-        for (Transacao t: transacoes) {
+        for (Transacao t : transacoes) {
             if (t.getTipoTransacao() == TipoTransacao.DESPESA) {
                 totalDespesas = totalDespesas.add(t.getValor());
             }
@@ -89,8 +96,13 @@ public class ContaFinanceira {
         return totalDespesas;
     }
 
+    public Map<YearMonth, List<Transacao>> getTransacoesPorMesEAno() {
+        return transacoes.stream()
+                .collect(Collectors.groupingBy(t -> YearMonth.from(t.getData())));
+    }
+
     public boolean limiteUltrapassado() {
-        if(limiteMensal == null || limiteMensal.compareTo(BigDecimal.ZERO) <= 0){
+        if (limiteMensal == null || limiteMensal.compareTo(BigDecimal.ZERO) <= 0) {
             return false;
         }
         return calcularTotalDespesas().compareTo(limiteMensal) > 0;
