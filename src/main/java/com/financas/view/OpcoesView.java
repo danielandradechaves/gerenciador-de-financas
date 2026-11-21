@@ -23,34 +23,27 @@ public class OpcoesView {
 
     public void definirLimiteView() {
         System.out.println("\n--- DEFINIR NOVO LIMITE ---");
-        do {
-            System.out.print("Defina o valor do novo limite: ");
-            try {
-                BigDecimal novoLimite = new BigDecimal(sc.nextLine().trim().replace(",", "."));
+            System.out.println("Defina o valor do novo limite");
+                BigDecimal novoLimite = selecionarValor();
                 service.definirLimite(novoLimite);
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("------------------------------------------");
-                System.out.println("Essa operação só aceita valores monetários");
-                System.out.println("------------------------------------------");
-            } catch (ValorInvalidoException e) {
-                System.out.println(e.getMessage());
-            }
-        } while (true);
+
     }
 
     public void registrarNovaReceitaView() {
-        System.out.println("\n--- REGISTRAR NOVA RECEITA ---");
+        try {
+            System.out.println("\n--- REGISTRAR NOVA RECEITA ---");
 
-        BigDecimal valor = selecionarValor();
+            BigDecimal valor = selecionarValor();
 
-        String descricao = selecionarDescricao();
+            String descricao = selecionarDescricao();
 
-        Categoria categoria = selecionarCategoria(TipoTransacao.RECEITA);
+            Categoria categoria = selecionarCategoria(TipoTransacao.RECEITA);
 
-
-        service.registrarReceita(valor, descricao, categoria);
-        System.out.println("Operação finalizada com sucesso");
+            service.registrarReceita(valor, descricao, categoria);
+            System.out.println("Operação finalizada com sucesso");
+        } catch (ValorInvalidoException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void registrarNovaDespesaView() {
@@ -67,8 +60,7 @@ public class OpcoesView {
             service.bloquearDespesa(valor);
 
             service.registrarDespesa(valor, descricao, categoria);
-            System.out.println("Operação finalizada com sucesso");
-        } catch (SaldoInsuficienteException | LimiteUltrapassadoException e) {
+        } catch (ValorInvalidoException | SaldoInsuficienteException | LimiteUltrapassadoException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -88,7 +80,7 @@ public class OpcoesView {
         DadosResumo resumo = service.resumoDeFinancas();
         System.out.println("Limite mensal: " + resumo.limiteMensal() + " R$");
         System.out.println("Receita do mês: " + resumo.totalReceitaDoMes() + " R$");
-        System.out.println("Despesa do mês: " + resumo.totalReceitaDoMes() + " R$");
+        System.out.println("Despesa do mês: " + resumo.totalDespesasDoMes() + " R$");
         System.out.println("Saldo Atual: " + resumo.saldoAtual() + " R$");
         System.out.println("Receita total: " + resumo.totalReceitas() + " R$");
         System.out.println("Despesa total: " + resumo.totalDespesas() + " R$");
@@ -105,8 +97,7 @@ public class OpcoesView {
         do {
             System.out.print("Valor: ");
             try {
-                BigDecimal valor = new BigDecimal(sc.nextLine().trim().replace(",", "."));
-                return valor;
+                return new BigDecimal(sc.nextLine().trim().replace(",", "."));
             } catch (NumberFormatException e) {
                 System.out.println("------------------------------------------");
                 System.out.println("Essa operação só aceita valores monetários");

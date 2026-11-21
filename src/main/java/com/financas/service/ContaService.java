@@ -20,29 +20,37 @@ public class ContaService {
 
     public void definirLimite(BigDecimal novoLimite) {
         // define o máximo de dinheiro que o usuário que gastar
-        if (novoLimite.compareTo(BigDecimal.ZERO) <= 0) {
-            valorInvalido();
+        try {
+            valorInvalido(novoLimite);
+            conta.atualizarLimite(novoLimite);
+            System.out.println("Limite atualizado com sucesso");
+        } catch (ValorInvalidoException e) {
+            System.out.println(e.getMessage());
         }
-        conta.atualizarLimite(novoLimite);
     }
 
     public void registrarReceita(BigDecimal valor, String descricao, Categoria categoria) {
         // registra o dinheiro que foi adicionado à conta
-        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-            valorInvalido();
-        }
+        try {
+            valorInvalido(valor);
             Transacao receita = new Transacao(valor, descricao, categoria, TipoTransacao.RECEITA);
             conta.addTransacao(receita);
+            System.out.println("Operação finalizada com sucesso");
+        } catch (ValorInvalidoException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void registrarDespesa(BigDecimal valor, String descricao, Categoria categoria) {
         // registra o dinheiro que foi gasto à conta
-        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-            valorInvalido();
+        try {
+            valorInvalido(valor);
+            Transacao despesa = new Transacao(valor, descricao, categoria, TipoTransacao.DESPESA);
+            conta.addTransacao(despesa);
+            System.out.println("Operação finalizada com sucesso");
+        } catch (ValorInvalidoException e) {
+            System.out.println(e.getMessage());
         }
-
-        Transacao despesa = new Transacao(valor, descricao, categoria, TipoTransacao.DESPESA);
-        conta.addTransacao(despesa);
     }
 
     public Map<YearMonth, List<Transacao>> listarTransacoes() {
@@ -78,7 +86,9 @@ public class ContaService {
 
     // UTILITÁRIAS
 
-    private void valorInvalido() {
-        throw new ValorInvalidoException("O valor deve ser maior que 0");
+    private void valorInvalido(BigDecimal valor) {
+        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValorInvalidoException("O valor deve ser maior que 0");
+        }
     }
 }
