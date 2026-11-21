@@ -66,11 +66,10 @@ public class Transacao {
 
     @Override
     public String toString() {
-        return "Transacao{" +
-                "valor=" + valor +
-                ", data=" + data +
-                ", categoria=" + categoria +
-                ", tipoTransacao=" + tipoTransacao +
-                '}';
+        return "[Valor: " + valor + " R$" +
+                " | Data: " + data +
+                " | Categoria: " + categoria.getTexto() +
+                " | Descrição: " + descricao +
+                " | Tipo da transação: " + tipoTransacao + "]";
     }
 }

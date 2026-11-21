@@ -3,10 +3,7 @@ package com.financas.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ContaFinanceira {
@@ -65,50 +62,46 @@ public class ContaFinanceira {
     }
 
     public void addTransacao(Transacao novaTransacao) {
-
         transacoes.add(novaTransacao);
-    }
-
-    public void calcularSaldo() {
-        BigDecimal receitas = calcularTotalReceitas();
-        BigDecimal despesas = calcularTotalDespesas();
-
-        saldoAtual = receitas.subtract(despesas);
-    }
-
-    public BigDecimal calcularTotalReceitas() {
-        BigDecimal totalReceitas = BigDecimal.ZERO;
-        for (Transacao t : transacoes) {
-            if (t.getTipoTransacao() == TipoTransacao.RECEITA) {
-                totalReceitas = totalReceitas.add(t.getValor());
-            }
+        if(novaTransacao.getTipoTransacao() == TipoTransacao.RECEITA) {
+            saldoAtual = saldoAtual.add(novaTransacao.getValor());
+        } else {
+            saldoAtual = saldoAtual.subtract(novaTransacao.getValor());
         }
-        return totalReceitas;
     }
 
-    public BigDecimal calcularTotalDespesas() {
-        BigDecimal totalDespesas = BigDecimal.ZERO;
-        for (Transacao t : transacoes) {
-            if (t.getTipoTransacao() == TipoTransacao.DESPESA) {
-                totalDespesas = totalDespesas.add(t.getValor());
-            }
-        }
-        return totalDespesas;
+    public BigDecimal calcularMesAno(YearMonth mesAno, TipoTransacao tipo) {
+        // soma todas as RECEITAS/DESPESAS conforme o mês e o ano
+        return transacoes.stream()
+                .filter(t -> t.getTipoTransacao() == tipo)
+                .filter(t -> YearMonth.from(t.getData()).equals(mesAno))
+                .map(Transacao::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal calcularTotal(TipoTransacao tipo) {
+        // soma todas as RECEITAS/DESPESAS da conta
+        return transacoes.stream()
+                .filter(t -> t.getTipoTransacao() == tipo)
+                .map(Transacao::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public Map<YearMonth, List<Transacao>> getTransacoesPorMesEAno() {
         return transacoes.stream()
-                .collect(Collectors.groupingBy(t -> YearMonth.from(t.getData())));
+                .collect(Collectors.groupingBy(t -> YearMonth.from(t.getData()),
+                        TreeMap::new,
+                        Collectors.toList()));
     }
 
-    public boolean limiteUltrapassado() {
+    public boolean limiteUltrapassado(BigDecimal valor) {
         if (limiteMensal == null || limiteMensal.compareTo(BigDecimal.ZERO) <= 0) {
             return false;
         }
-        return calcularTotalDespesas().compareTo(limiteMensal) > 0;
+        return calcularMesAno(YearMonth.now(), TipoTransacao.DESPESA).add(valor).compareTo(limiteMensal) > 0;
     }
 
-    public boolean saldoNegativo() {
-        return saldoAtual.compareTo(BigDecimal.ZERO) < 0;
+    public boolean saldoNegativo(BigDecimal valor) {
+        return saldoAtual.subtract(valor).compareTo(BigDecimal.ZERO) < 0;
     }
 }

@@ -22,7 +22,7 @@ public class MenuConsole {
                     case 5 -> opcoesView.verResumoFinanceiroView();
                     case 6 -> opcoesView.exportarRelatorioView();
                 }
-            } catch (InputMismatchException e) {
+            } catch (NumberFormatException e) {
                 System.out.println("Essa operação só aceita números");
             }
         } while (true);

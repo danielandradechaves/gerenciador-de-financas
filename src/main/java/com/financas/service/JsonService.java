@@ -14,7 +14,7 @@ public class JsonService {
             .enable(SerializationFeature.INDENT_OUTPUT)
             .build();
 
-    private static final String CAMINHO = "contas/conta-teste.json";
+    private static final String CAMINHO = "contas/conta.json";
 
     public static ContaFinanceira importarJson() {
         File file = new File(CAMINHO);

@@ -55,7 +55,6 @@ public class OpcoesView {
 
     public void registrarNovaDespesaView() {
         try {
-            service.bloquearDespesa();
             System.out.println("\n--- REGISTRAR NOVA DESPESA ---");
 
             BigDecimal valor = selecionarValor();
@@ -64,8 +63,11 @@ public class OpcoesView {
 
             Categoria categoria = selecionarCategoria(TipoTransacao.DESPESA);
 
+            // se o valor da despesa ultrapassar o limite mensal ou for maior que o saldo a despesa é bloqueada
+            service.bloquearDespesa(valor);
+
             service.registrarDespesa(valor, descricao, categoria);
-            System.out.println("Operação finalizada sucesso");
+            System.out.println("Operação finalizada com sucesso");
         } catch (SaldoInsuficienteException | LimiteUltrapassadoException e) {
             System.out.println(e.getMessage());
         }
@@ -73,6 +75,7 @@ public class OpcoesView {
 
     public void listarTransacoesView() {
         System.out.println("--- LISTAR TRANSAÇÕES ---");
+
         Map<YearMonth, List<Transacao>> listaTransacao = service.listarTransacoes();
         listaTransacao.forEach((ym, t) -> {
             System.out.println(ym);
@@ -84,15 +87,16 @@ public class OpcoesView {
         System.out.println("--- RESUMO DE FINANÇAS ---");
         DadosResumo resumo = service.resumoDeFinancas();
         System.out.println("Limite mensal: " + resumo.limiteMensal() + " R$");
-        System.out.println("Total Gasto: " + resumo.totalGasto() + " R$");
+        System.out.println("Receita do mês: " + resumo.totalReceitaDoMes() + " R$");
+        System.out.println("Despesa do mês: " + resumo.totalReceitaDoMes() + " R$");
         System.out.println("Saldo Atual: " + resumo.saldoAtual() + " R$");
         System.out.println("Receita total: " + resumo.totalReceitas() + " R$");
         System.out.println("Despesa total: " + resumo.totalDespesas() + " R$");
     }
 
     public void exportarRelatorioView() {
-        DadosConta contaDto = service.exportarRelatorio();
-        System.out.println(contaDto);
+        service.exportarRelatorio();
+        System.out.println("Relatório exportado com sucesso");
     }
 
     // UTILITÁRIAS
@@ -101,8 +105,8 @@ public class OpcoesView {
         do {
             System.out.print("Valor: ");
             try {
-                return new BigDecimal(sc.nextLine().trim().replace(",", "."));
-
+                BigDecimal valor = new BigDecimal(sc.nextLine().trim().replace(",", "."));
+                return valor;
             } catch (NumberFormatException e) {
                 System.out.println("------------------------------------------");
                 System.out.println("Essa operação só aceita valores monetários");
